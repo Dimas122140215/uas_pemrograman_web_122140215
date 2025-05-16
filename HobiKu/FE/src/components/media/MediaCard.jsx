@@ -9,12 +9,12 @@ const StatusBadge = ({ status }) => {
         return 'bg-green-500';
       case 'Watching':
       case 'Playing':
-        return 'bg-blue-500';
+        return 'bg-primary';
       case 'Plan to Watch':
       case 'Plan to Play':
         return 'bg-yellow-500';
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-400';
     }
   };
 
@@ -42,8 +42,9 @@ const MediaCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105">
       <Link to={`/media/${type.toLowerCase()}/${id}`}>
+        {/* Image Container */}
         <div className="relative h-48 overflow-hidden">
           <img 
             src={imgSrc} 
@@ -58,19 +59,24 @@ const MediaCard = ({
           )}
         </div>
         
+        {/* Card Body */}
         <div className="p-4">
-          <h3 className="font-semibold text-gray-800 text-lg truncate">{title}</h3>
+          <h3 className="font-raleway font-semibold text-gray-800 text-lg truncate">{title}</h3>
           
+          {/* Rating + Year */}
           <div className="mt-2 flex items-center justify-between">
             <div className="flex items-center">
               <Star size={16} className="text-yellow-500 fill-current" />
-              <span className="ml-1 text-sm text-gray-600">{rating || 'N/A'}</span>
+              <span className="ml-1 text-sm font-poppins text-gray-600">
+                {rating ? rating.toFixed(1) : 'N/A'}
+              </span>
             </div>
-            <span className="text-sm text-gray-500">{year}</span>
+            <span className="text-sm font-poppins text-gray-500">{year || '-'}</span>
           </div>
           
+          {/* Type Tag */}
           <div className="mt-2">
-            <span className="text-xs font-medium text-indigo-700 uppercase tracking-wider">
+            <span className="font-poppins text-xs font-medium text-secondary uppercase tracking-wider">
               {type}
             </span>
           </div>

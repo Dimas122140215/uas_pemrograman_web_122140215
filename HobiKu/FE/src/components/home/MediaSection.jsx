@@ -1,23 +1,25 @@
 import { Link } from 'react-router-dom';
 import MediaCard from '../media/MediaCard';
 
-const MediaSection = ({ title, mediaType, items = [], viewAllLink }) => {  
+const MediaSection = ({ title, mediaType, items = [], viewAllLink }) => {
   return (
-    <div className="py-8">
+    <section className="py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          <h2 className="font-raleway text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
           <Link 
             to={viewAllLink} 
-            className="text-indigo-600 hover:text-indigo-800 font-medium"
+            className="font-poppins text-primary hover:text-secondary font-medium transition-colors"
           >
             View All
           </Link>
         </div>
         
+        {/* Content Grid or Empty State */}
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-            <p className="text-lg">No items to display</p>
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+            <p className="font-poppins text-lg">No items to display</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
@@ -35,7 +37,7 @@ const MediaSection = ({ title, mediaType, items = [], viewAllLink }) => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -5,11 +5,11 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    fontFamily: {
+      raleway: ['Raleway', 'sans-serif'],
+      sans: ['Poppins', 'sans-serif'],
+    },
     extend: {
-      fontFamily: {
-        raleway: ['Raleway', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
-      },
       colors: {
         // Define your custom blue palette here
         primary: '#007BFF',     // Light Blue

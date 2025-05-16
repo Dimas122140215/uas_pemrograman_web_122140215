@@ -2,10 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-.heading {
-    @apply font-raleway;
-}
+@layer utilities {
+  .font-raleway {
+    font-family: 'Raleway', sans-serif;
+  }
 
-.body-text {
-    @apply font-poppins;
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
 }
