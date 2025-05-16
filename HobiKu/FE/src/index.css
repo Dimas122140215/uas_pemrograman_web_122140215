@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.heading {
+    @apply font-raleway;
+}
+
+.body-text {
+    @apply font-poppins;
+}
