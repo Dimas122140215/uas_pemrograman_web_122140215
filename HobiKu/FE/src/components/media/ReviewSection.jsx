@@ -1,6 +1,6 @@
 // src/components/home/MediaSection.jsx
 import { Link } from 'react-router-dom';
-import MediaCard from '../../media/MediaCard';
+import MediaCard from '../../components/common/MediaCard';
 
 const MediaSection = ({ title, items = [], viewAllLink }) => {
   return (

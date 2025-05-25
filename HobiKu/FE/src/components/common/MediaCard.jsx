@@ -1,19 +1,12 @@
 // src/components/media/MediaCard.jsx
-import { Link } from 'react-router-dom';
-import StatusBadge from '../common/StatusBadge';
 import PropTypes from 'prop-types';
-import { Star } from 'lucide-react';
+import StatusBadge from './StatusBadge';
+import { Link } from 'react-router-dom';
 
-const MediaCard = ({ media, showProgress = false }) => {
-  const [hovered, setHovered] = useState(false);
-
+const MediaCard = ({ media, showProgress = false, children }) => {
   return (
     <Link to={`/media/${media.type.toLowerCase()}/${media.id}`} className="block relative group">
-      <div 
-        className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 transform hover:shadow-xl"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+      <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
         <div className="relative">
           <img 
             src={media.coverImage} 
@@ -26,21 +19,22 @@ const MediaCard = ({ media, showProgress = false }) => {
             </div>
           )}
         </div>
-
+        
         <div className="p-4">
-          <h3 className="font-raleway text-lg font-bold line-clamp-1">{media.title}</h3>
+          <h3 className="font-raleway font-bold text-lg line-clamp-1">{media.title}</h3>
           
           <div className="flex items-center justify-between mt-1">
-            <span className="text-sm text-gray-600 capitalize">{media.type}</span>
+            <span className="text-gray-600 capitalize">{media.type}</span>
             
             {media.rating && (
-              <div className="flex items-center gap-1 text-yellow-500">
-                <Star size={16} />
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-500">★</span>
                 <span className="font-medium">{media.rating.toFixed(1)}</span>
               </div>
             )}
           </div>
 
+          {/* Optional Progress Tracker */}
           {showProgress && media.progress && (
             <div className="mt-3">
               <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
@@ -49,9 +43,16 @@ const MediaCard = ({ media, showProgress = false }) => {
                   style={{ width: `${(media.progress / media.total) * 100}%` }}
                 ></div>
               </div>
-              <span className="text-sm text-gray-600 mt-1 block text-right">
+              <span className="text-xs text-gray-500 mt-1 block text-right">
                 {media.progress} / {media.total}
               </span>
+            </div>
+          )}
+
+          {/* Optional child components like ProgressTracker */}
+          {children && (
+            <div className="mt-4">
+              {children}
             </div>
           )}
         </div>
@@ -72,6 +73,7 @@ MediaCard.propTypes = {
     total: PropTypes.number,
   }).isRequired,
   showProgress: PropTypes.bool,
+  children: PropTypes.node,
 };
 
 export default MediaCard;

@@ -1,3 +1,4 @@
+// src/pages/user/Profile.jsx
 import { useState } from 'react';
 import MediaCard from '../../components/common/MediaCard';
 
@@ -5,51 +6,42 @@ const Profile = () => {
   const user = {
     username: 'GamerX',
     email: 'gamerx@example.com',
-    joined: '2022-03-15',
-    avatar: null,
+    joined: '2022-03-15'
   };
 
   const allMedia = [
     {
-      id: 1,
+      id: '1',
       title: 'Elden Ring',
       imageUrl: '/api/placeholder/200/300',
       status: 'Completed',
+      type: 'Game'
     },
     {
-      id: 2,
+      id: '2',
       title: 'Attack on Titan',
       imageUrl: '/api/placeholder/200/300',
       status: 'Watching',
+      type: 'Anime'
     },
     {
-      id: 3,
+      id: '3',
       title: 'Cyberpunk 2077',
       imageUrl: '/api/placeholder/200/300',
       status: 'Plan to Play',
+      type: 'Game'
     },
     {
-      id: 4,
+      id: '4',
       title: 'Oppenheimer',
       imageUrl: '/api/placeholder/200/300',
       status: 'Watching',
-    },
-    {
-      id: 5,
-      title: 'Demon Slayer',
-      imageUrl: '/api/placeholder/200/300',
-      status: 'Completed',
-    },
-    {
-      id: 6,
-      title: 'Dune: Part Two',
-      imageUrl: '/api/placeholder/200/300',
-      status: 'Watching',
-    },
+      type: 'Film'
+    }
   ];
 
-  const trackedItems = allMedia.filter((item) => item.status !== 'Completed');
-  const completedItems = allMedia.filter((item) => item.status === 'Completed');
+  const trackedItems = allMedia.filter(item => item.status !== 'Completed');
+  const completedItems = allMedia.filter(item => item.status === 'Completed');
 
   const [activeTab, setActiveTab] = useState('tracked');
 
@@ -117,27 +109,9 @@ const Profile = () => {
         {/* Grid View */}
         <div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {activeTab === 'tracked'
-              ? trackedItems.map((item) => (
-                  <MediaCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    imageUrl={item.imageUrl}
-                    status={item.status}
-                    type={item.type}
-                  />
-                ))
-              : completedItems.map((item) => (
-                  <MediaCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    imageUrl={item.imageUrl}
-                    status={item.status}
-                    type={item.type}
-                  />
-                ))}
+            {(activeTab === 'tracked' ? trackedItems : completedItems).map((item) => (
+              <MediaCard key={item.id} media={item} showProgress={false} />
+            ))}
           </div>
         </div>
       </div>
