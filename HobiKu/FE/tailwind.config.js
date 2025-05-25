@@ -7,7 +7,7 @@ export default {
   theme: {
     fontFamily: {
       raleway: ['Raleway', 'sans-serif'],
-      sans: ['Poppins', 'sans-serif'],
+      poppins: ['Poppins', 'sans-serif'],
     },
     extend: {
       colors: {
