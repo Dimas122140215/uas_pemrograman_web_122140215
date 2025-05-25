@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MediaCard from '../components/media/MediaCard';
+import MediaCard from '../../components/common/MediaCard';
 
 const Profile = () => {
   const user = {

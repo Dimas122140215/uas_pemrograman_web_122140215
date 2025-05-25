@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MediaCard from '../components/media/MediaCard';
+import MediaCard from '../../components/common/MediaCard';
 
 const sampleMedia = [
   { id: 1, title: 'Elden Ring', rating: 4.8, year: 2022 },
