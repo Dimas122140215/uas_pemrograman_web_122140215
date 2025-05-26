@@ -13,28 +13,28 @@ const Profile = () => {
     {
       id: '1',
       title: 'Elden Ring',
-      imageUrl: '/api/placeholder/200/300',
+      coverImage: 'https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/d/v/5/large-elden-ring-video-game-posters-13x19-inch-300-gsm-paper-original-imagwquwwezmejzb.jpeg?q=20&crop=false',
       status: 'Completed',
       type: 'Game'
     },
     {
       id: '2',
       title: 'Attack on Titan',
-      imageUrl: '/api/placeholder/200/300',
+      coverImage: 'https://cdn.europosters.eu/image/1300/216782.jpg',
       status: 'Watching',
       type: 'Anime'
     },
     {
       id: '3',
       title: 'Cyberpunk 2077',
-      imageUrl: '/api/placeholder/200/300',
+      coverImage: 'https://cdn.europosters.eu/image/1300/102945.jpg',
       status: 'Plan to Play',
       type: 'Game'
     },
     {
       id: '4',
       title: 'Oppenheimer',
-      imageUrl: '/api/placeholder/200/300',
+      coverImage: 'https://upload.wikimedia.org/wikipedia/id/4/4a/Oppenheimer_%28film%29.jpg',
       status: 'Watching',
       type: 'Film'
     }

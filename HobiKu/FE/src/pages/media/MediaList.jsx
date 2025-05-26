@@ -6,7 +6,7 @@ const sampleMedia = [
   {
     id: '1',
     title: 'Dune: Part Two',
-    coverImage: '/api/placeholder/200/300',
+    coverImage: 'https://xl.movieposterdb.com/24_01/2024/15239678/xl_dune-part-two-movie-poster_e27e32f3.jpg',
     rating: 4.5,
     type: 'Film',
     status: 'Watching'
@@ -14,7 +14,7 @@ const sampleMedia = [
   {
     id: '2',
     title: 'Jujutsu Kaisen',
-    coverImage: '/api/placeholder/200/300',
+    coverImage: 'https://images-cdn.ubuy.co.id/633feb8bd279163476374ad1-japan-anime-manga-poster-jujutsu.jpg',
     rating: 4.7,
     type: 'Anime',
     status: 'Watching'
@@ -22,7 +22,7 @@ const sampleMedia = [
   {
     id: '3',
     title: 'Chainsaw Man',
-    coverImage: '/api/placeholder/200/300',
+    coverImage: 'https://m.media-amazon.com/images/I/81iZCUeRLXL.jpg',
     rating: 4.5,
     type: 'Anime',
     status: 'Plan to Watch'

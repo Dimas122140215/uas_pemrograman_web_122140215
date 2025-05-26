@@ -4,38 +4,46 @@ import StatusBadge from './StatusBadge';
 import { Link } from 'react-router-dom';
 
 const MediaCard = ({ media, showProgress = false, children }) => {
+  // Safely access properties or fall back
+  const title = media?.title || 'Untitled';
+  const type = media?.type ? media.type.toLowerCase() : 'unknown';
+  const id = media?.id || '0';
+  const coverImage = media?.coverImage || '/api/placeholder/200/300';
+  const rating = media?.rating;
+  const status = media?.status;
+
   return (
-    <Link to={`/media/${media.type.toLowerCase()}/${media.id}`} className="block relative group">
+    <Link to={`/media/${type}/${id}`} className="block relative group">
       <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
         <div className="relative">
           <img 
-            src={media.coverImage} 
-            alt={media.title}
+            src={coverImage} 
+            alt={title}
             className="w-full h-48 object-cover"
           />
-          {media.status && (
+          {status && (
             <div className="absolute top-2 right-2">
-              <StatusBadge status={media.status} />
+              <StatusBadge status={status} />
             </div>
           )}
         </div>
-        
+
         <div className="p-4">
-          <h3 className="font-raleway font-bold text-lg line-clamp-1">{media.title}</h3>
+          <h3 className="font-raleway font-bold text-lg line-clamp-1">{title}</h3>
           
           <div className="flex items-center justify-between mt-1">
-            <span className="text-gray-600 capitalize">{media.type}</span>
+            <span className="font-poppins text-gray-600 capitalize">{type}</span>
             
-            {media.rating && (
+            {rating && (
               <div className="flex items-center gap-1">
                 <span className="text-yellow-500">★</span>
-                <span className="font-medium">{media.rating.toFixed(1)}</span>
+                <span className="font-poppins font-medium">{rating.toFixed(1)}</span>
               </div>
             )}
           </div>
 
           {/* Optional Progress Tracker */}
-          {showProgress && media.progress && (
+          {showProgress && media.progress && media.total && (
             <div className="mt-3">
               <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
                 <div 
@@ -50,11 +58,7 @@ const MediaCard = ({ media, showProgress = false, children }) => {
           )}
 
           {/* Optional child components like ProgressTracker */}
-          {children && (
-            <div className="mt-4">
-              {children}
-            </div>
-          )}
+          {children && <div className="mt-4">{children}</div>}
         </div>
       </div>
     </Link>

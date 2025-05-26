@@ -7,16 +7,18 @@ const mockGames = [
   {
     id: '1',
     title: 'Elden Ring',
-    coverImage: '/api/placeholder/200/300',
+    type: 'Game',
+    coverImage: 'https://rukminim2.flixcart.com/image/850/1000/xif0q/poster/d/v/5/large-elden-ring-video-game-posters-13x19-inch-300-gsm-paper-original-imagwquwwezmejzb.jpeg?q=20&crop=false',
     rating: 4.8,
-    status: 'Watching',
+    status: 'Playing',
     progress: 75,
     total: 100
   },
   {
     id: '2',
     title: 'Cyberpunk 2077',
-    coverImage: '/api/placeholder/200/300',
+    type: 'Game',
+    coverImage: 'https://cdn.europosters.eu/image/1300/102945.jpg',
     rating: 4.1,
     status: 'Plan to Play',
     progress: 0,
@@ -28,7 +30,8 @@ const mockFilms = [
   {
     id: '1',
     title: 'Oppenheimer',
-    coverImage: '/api/placeholder/200/300',
+    type: 'Film',
+    coverImage: 'https://upload.wikimedia.org/wikipedia/id/4/4a/Oppenheimer_%28film%29.jpg',
     rating: 4.7,
     status: 'Watching'
   }
@@ -38,7 +41,8 @@ const mockAnime = [
   {
     id: '1',
     title: 'Attack on Titan Final Season',
-    coverImage: '/api/placeholder/200/300',
+    type: 'Anime',
+    coverImage: 'https://cdn.europosters.eu/image/1300/216782.jpg',
     rating: 4.9,
     status: 'Completed'
   }

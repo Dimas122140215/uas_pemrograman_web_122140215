@@ -8,14 +8,14 @@ const relatedMedia = [
   {
     id: '2',
     title: 'Jujutsu Kaisen',
-    coverImage: '/api/placeholder/200/300',
+    coverImage: 'https://images-cdn.ubuy.co.id/633feb8bd279163476374ad1-japan-anime-manga-poster-jujutsu.jpg',
     rating: 4.7,
     type: 'Anime'
   },
   {
     id: '3',
     title: 'God of War Ragnarök',
-    coverImage: '/api/placeholder/200/300',
+    coverImage: 'https://ae01.alicdn.com/kf/S2ee185e7f1064ed2bb9414f206475ce8B.jpg',
     rating: 4.7,
     type: 'Game'
   }
@@ -32,7 +32,7 @@ const MediaDetail = () => {
     genres: ['Action', 'Adventure', 'Fantasy'],
     year: 2023,
     rating: 4.8,
-    coverImage: '/api/placeholder/600/400',
+    coverImage: 'https://cdn.europosters.eu/image/1300/216782.jpg',
     type: type.charAt(0).toUpperCase() + type.slice(1),
     status: 'Watching',
     progress: 60,
