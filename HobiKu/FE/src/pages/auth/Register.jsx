@@ -1,20 +1,17 @@
 // src/pages/auth/Register.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthLayout from '../../components/auth/AuthLayout';
-import AuthCard from '../../components/auth/AuthCard';
 
 const Register = () => {
-  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!username || !email || !password || !confirmPassword) {
       setError('All fields are required.');
       return;
@@ -27,27 +24,29 @@ const Register = () => {
 
     setIsLoading(true);
 
+    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setError('Registration successful!');
-      navigate('/login');
+      window.location.href = '/login';
     }, 800);
   };
 
   return (
-    <AuthLayout>
-      <AuthCard heading="Create Account" subheading="Start tracking your favorite media today">
+      <div className="space-y-4">
+        <h2 className="font-raleway text-2xl text-gray-800 text-center">Create Account</h2>
+        <p className="font-poppins text-gray-600 text-center">Start tracking your favorite media today</p>
+
         {error && (
-          <div className="bg-blue-50 border-l-4 border-primary text-primary p-3 mb-4 rounded">
-            <p className="text-sm">{error}</p>
+          <div className="bg-blue-50 border-l-4 border-primary text-primary p-3 mb-4 rounded text-sm">
+            <p>{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Username Field */}
           <div>
-            <label htmlFor="username" className="block text-sm font-poppins text-gray-700 mb-1">
-              Username
-            </label>
+            <label htmlFor="username" className="block text-sm font-poppins text-gray-700 mb-1">Username</label>
             <input
               id="username"
               type="text"
@@ -58,10 +57,9 @@ const Register = () => {
             />
           </div>
 
+          {/* Email Field */}
           <div>
-            <label htmlFor="email" className="block text-sm font-poppins text-gray-700 mb-1">
-              Email
-            </label>
+            <label htmlFor="email" className="block text-sm font-poppins text-gray-700 mb-1">Email</label>
             <input
               id="email"
               type="email"
@@ -72,10 +70,9 @@ const Register = () => {
             />
           </div>
 
+          {/* Password Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-poppins text-gray-700 mb-1">
-              Password
-            </label>
+            <label htmlFor="password" className="block text-sm font-poppins text-gray-700 mb-1">Password</label>
             <input
               id="password"
               type="password"
@@ -86,10 +83,9 @@ const Register = () => {
             />
           </div>
 
+          {/* Confirm Password Field */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-poppins text-gray-700 mb-1">
-              Confirm Password
-            </label>
+            <label htmlFor="confirmPassword" className="block text-sm font-poppins text-gray-700 mb-1">Confirm Password</label>
             <input
               id="confirmPassword"
               type="password"
@@ -100,6 +96,7 @@ const Register = () => {
             />
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -115,14 +112,14 @@ const Register = () => {
           </button>
         </form>
 
+        {/* Footer Link */}
         <p className="mt-4 font-poppins text-sm text-gray-600 text-center">
           Already have an account?{' '}
-          <button onClick={() => navigate('/login')} className="text-primary hover:underline">
+          <a href="/login" className="text-primary hover:underline">
             Login
-          </button>
+          </a>
         </p>
-      </AuthCard>
-    </AuthLayout>
+      </div>
   );
 };
 
