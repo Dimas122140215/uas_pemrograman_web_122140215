@@ -1,125 +1,89 @@
 // src/pages/auth/Register.jsx
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { registerUser } from '../../services/api';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    if (!username || !email || !password || !confirmPassword) {
-      setError('All fields are required.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords don't match.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      setError('Registration successful!');
+    try {
+      await registerUser({ username, email, password });
+      alert('Registration successful!');
       window.location.href = '/login';
-    }, 800);
+    } catch (err) {
+      setError(err.message || 'Registration failed');
+    }
   };
 
   return (
-      <div className="space-y-4">
-        <h2 className="font-raleway text-2xl text-gray-800 text-center">Create Account</h2>
-        <p className="font-poppins text-gray-600 text-center">Start tracking your favorite media today</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg w-full max-w-md p-6 space-y-4">
+        <h2 className="text-2xl font-bold text-center text-gray-800">Create Your Account</h2>
 
         {error && (
-          <div className="bg-blue-50 border-l-4 border-primary text-primary p-3 mb-4 rounded text-sm">
-            <p>{error}</p>
-          </div>
+          <p className="text-red-500 text-sm text-center">{error}</p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username Field */}
-          <div>
-            <label htmlFor="username" className="block text-sm font-poppins text-gray-700 mb-1">Username</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="john_doe"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <div>
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="john_doe"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          {/* Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-poppins text-gray-700 mb-1">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-poppins text-gray-700 mb-1">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          {/* Confirm Password Field */}
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-poppins text-gray-700 mb-1">Confirm Password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition-colors"
+        >
+          Register
+        </button>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full bg-primary hover:bg-secondary text-white font-poppins py-2 px-4 rounded-lg transition-colors flex justify-center ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {isLoading ? (
-              <span className="animate-spin h-5 w-5 border-t-2 border-white rounded-full"></span>
-            ) : (
-              'Register'
-            )}
-          </button>
-        </form>
-
-        {/* Footer Link */}
-        <p className="mt-4 font-poppins text-sm text-gray-600 text-center">
+        <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{' '}
-          <a href="/login" className="text-primary hover:underline">
+          <a href="/login" className="text-blue-600 hover:underline">
             Login
           </a>
         </p>
-      </div>
+      </form>
+    </div>
   );
 };
 

@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
+
 def get_engine(url):
     return create_engine(url)
 

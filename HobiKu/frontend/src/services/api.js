@@ -1,65 +1,30 @@
+// src/services/api.js
 import axios from 'axios';
 
-// Use environment variable or fallback to local dev server
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:6543', // Replace with your Python backend URL
-  timeout: 10000,
+  baseURL: 'http://localhost:6543/api/auth',
+  timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
 });
 
-// Fetch trending media (for Home)
-export const getTrendingGames = async () => {
+export const registerUser = async (userData) => {
   try {
-    const response = await apiClient.get('/media/games');
+    const response = await apiClient.post('/register', userData);
     return response.data;
-  } catch (error) {
-    console.error('Error fetching games:', error);
-    return [];
+  } catch (err) {
+    console.error('Registration failed:', err.response?.data || err.message);
+    throw new Error(err.response?.data?.error || 'Registration failed');
   }
 };
 
-// Fetch trending films (for Home)
-export const getTrendingFilms = async () => {
+export const loginUser = async (email, password) => {
   try {
-    const response = await apiClient.get('/media/films');
+    const response = await apiClient.post('/login', { email, password });
     return response.data;
-  } catch (error) {
-    console.error('Error fetching films:', error);
-    return [];
-  }
-};
-
-// Fetch trending anime (for Home)
-export const getTrendingAnime = async () => {
-  try {
-    const response = await apiClient.get('/media/anime');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching anime:', error);
-    return [];
-  }
-};
-
-// Update media progress (used in YourSpace)
-export const updateMediaProgress = async (type, id, progress) => {
-  try {
-    const response = await apiClient.post(`/media/${type}/${id}/progress`, { progress });
-    return response.data;
-  } catch (error) {
-    console.error('Failed to update progress:', error);
-    return null;
-  }
-};
-
-// Submit review for media
-export const submitMediaReview = async (type, id, reviewData) => {
-  try {
-    const response = await apiClient.post(`/media/${type}/${id}/review`, reviewData);
-    return response.data;
-  } catch (error) {
-    console.error('Failed to submit review:', error);
-    return null;
+  } catch (err) {
+    console.error('Login failed:', err.response?.data || err.message);
+    throw new Error('Invalid email or password');
   }
 };

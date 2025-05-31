@@ -28,8 +28,10 @@ def main(global_config, **settings):
     # Define routes
     config.add_route('register', '/api/auth/register')
     config.add_route('login', '/api/auth/login')
+    config.add_route('add_media', '/api/media/{type}')
 
     # Scan views
     config.scan('.views.auth_views')
+    config.scan('.views.media_views')
 
     return config.make_wsgi_app()
