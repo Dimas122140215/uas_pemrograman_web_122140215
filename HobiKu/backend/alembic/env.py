@@ -17,9 +17,10 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from BE_MediaTrack.models.user import User
-from BE_MediaTrack.models.meta import Base
-target_metadata = Base.metadata
+from BE_MediaTrack.models.user import Base as UserBase
+from BE_MediaTrack.models.media import Base as MediaBase
+from BE_MediaTrack.models.user_media import Base as UserMediaBase
+target_metadata = [UserBase.metadata, MediaBase.metadata, UserMediaBase.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -27,17 +28,6 @@ target_metadata = Base.metadata
 # ... etc.
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -66,7 +56,6 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata
         )
-
         with context.begin_transaction():
             context.run_migrations()
 

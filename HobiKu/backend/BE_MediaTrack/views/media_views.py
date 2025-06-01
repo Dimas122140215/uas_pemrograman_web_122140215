@@ -1,54 +1,21 @@
-# backend/hobiku_api/views/media_views.py
 from pyramid.view import view_config
 from pyramid.response import Response
+from ..security import get_user_id_from_request
+from marshmallow.exceptions import ValidationError
 import json
 
-from ..services.media_service import update_media_tracking, delete_media_from_tracker
-
-@view_config(route_name='update_media', renderer='json', request_method='PUT')
-def update_media_view(request):
-    user_id = 1  # Later: get from JWT token
-    media_id = int(request.matchdict['id'])
-    data = request.json_body
-
+@view_config(route_name='get_tracked_media', renderer='json', request_method='GET')
+def get_tracked_media_view(request):
     try:
-        result = update_media_tracking(request.dbsession, user_id, media_id, data)
-        return result
-    except ValueError as e:
-        return Response(
-            body=json.dumps({"error": str(e)}),
-            content_type='application/json',
-            charset='utf-8',
-            status=400
-        )
-    except Exception as e:
-        return Response(
-            body=json.dumps({"error": "An unexpected error occurred"}),
-            content_type='application/json',
-            charset='utf-8',
-            status=500
-        )
+        user_id = get_user_id_from_request(request)
+        media_type = request.matchdict['type']
 
+        # Later, fetch from DB using SQLAlchemy
+        return {
+            "user_id": user_id,
+            "media_type": media_type,
+            "tracked": []
+        }
 
-@view_config(route_name='delete_media', renderer='json', request_method='DELETE')
-def delete_media_view(request):
-    user_id = 1  # Later: get from JWT token
-    media_id = int(request.matchdict['id'])
-
-    try:
-        result = delete_media_from_tracker(request.dbsession, media_id, user_id)
-        return result
-    except ValueError as e:
-        return Response(
-            body=json.dumps({"error": str(e)}),
-            content_type='application/json',
-            charset='utf-8',
-            status=400
-        )
-    except Exception as e:
-        return Response(
-            body=json.dumps({"error": "An unexpected error occurred"}),
-            content_type='application/json',
-            charset='utf-8',
-            status=500
-        )
+    except ValidationError as ve:
+        return Response(json.dumps({"error": ve.messages}), status=400, content_type='application/json', charset='utf-8')

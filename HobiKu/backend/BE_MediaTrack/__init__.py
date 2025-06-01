@@ -31,6 +31,7 @@ def main(global_config, **settings):
     config.add_route('add_media', '/api/media/{type}')
     config.add_route('update_media', '/api/media/{type}/{id}', request_method='PUT')
     config.add_route('delete_media', '/api/media/{type}/{id}', request_method='DELETE')
+    config.add_route('get_tracked_media', '/api/media/{type}', request_method='GET')
 
     # Scan views
     config.scan('.views.auth_views')
