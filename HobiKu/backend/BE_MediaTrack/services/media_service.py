@@ -1,38 +1,53 @@
+# backend/hobiku_api/services/media_service.py
 from ..models.user_media import UserMedia
-from ..models.media import Media
-from marshmallow.exceptions import ValidationError
-from ..schemas.media_schema import MediaSchema
+from sqlalchemy.exc import NoResultFound, IntegrityError
+from datetime import datetime
 
-def add_media_to_user(dbsession, user_id, media_data):
-    schema = MediaSchema(partial=True)
+def update_media_tracking(dbsession, user_id, media_id, updated_data):
     try:
-        data = schema.load(media_data)
-    except ValidationError as err:
-        raise ValueError(err.messages)
+        # Find tracked media
+        user_media = dbsession.query(UserMedia).filter(
+            UserMedia.user_id == user_id,
+            UserMedia.media_id == media_id
+        ).one()
 
-    # Check if media already exists
-    existing = dbsession.query(Media).filter(Media.title == data['title'], Media.type == data.get('type')).first()
-    if not existing:
-        existing = Media(title=data['title'], type=data.get('type', 'film'), description=data.get('description', ''))
-        dbsession.add(existing)
+        # Update fields dynamically
+        for key, value in updated_data.items():
+            setattr(user_media, key, value)
+
+        user_media.updated_at = datetime.utcnow()
         dbsession.flush()
 
-    # Check if already added to tracker
-    tracked = dbsession.query(UserMedia).filter(UserMedia.user_id == user_id, UserMedia.media_id == existing.id).first()
-    if tracked:
-        return {"error": "Already in your tracker"}
+        return {
+            "message": "Media updated successfully",
+            "data": {
+                "status": user_media.status,
+                "rating": user_media.rating,
+                "progress": user_media.progress
+            }
+        }
 
-    user_media = UserMedia(
-        user_id=user_id,
-        media_id=existing.id,
-        status=data.get('status', 'planning'),
-        rating=data.get('rating'),
-        progress=data.get('progress', 0)
-    )
+    except NoResultFound:
+        raise ValueError("Media not found in your tracker")
+    except Exception as e:
+        dbsession.rollback()
+        raise e
 
-    dbsession.add(user_media)
-    return {
-        "message": "Added to tracker",
-        "media": existing.title,
-        "status": user_media.status
-    }
+
+def delete_media_from_tracker(dbsession, user_id, media_id):
+    try:
+        user_media = dbsession.query(UserMedia).filter(
+            UserMedia.user_id == user_id,
+            UserMedia.media_id == media_id
+        ).one()
+
+        dbsession.delete(user_media)
+        dbsession.flush()
+
+        return {"message": "Media removed from your tracker"}
+
+    except NoResultFound:
+        raise ValueError("Media not found in your tracker")
+    except Exception as e:
+        dbsession.rollback()
+        raise e

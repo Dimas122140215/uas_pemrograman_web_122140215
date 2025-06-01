@@ -29,6 +29,8 @@ def main(global_config, **settings):
     config.add_route('register', '/api/auth/register')
     config.add_route('login', '/api/auth/login')
     config.add_route('add_media', '/api/media/{type}')
+    config.add_route('update_media', '/api/media/{type}/{id}', request_method='PUT')
+    config.add_route('delete_media', '/api/media/{type}/{id}', request_method='DELETE')
 
     # Scan views
     config.scan('.views.auth_views')

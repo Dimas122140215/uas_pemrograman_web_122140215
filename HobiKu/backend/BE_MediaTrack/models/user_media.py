@@ -1,3 +1,4 @@
+# backend/hobiku_api/models/user_media.py
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -10,9 +11,11 @@ class UserMedia(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
     media_id = Column(Integer, nullable=False)
-    status = Column(String(20), nullable=False)
+    status = Column(String(20), nullable=False)  # watching/completed/planning/etc.
     rating = Column(Float)
     progress = Column(Integer, default=0)
     updated_at = Column(DateTime, default=datetime.utcnow)
-    
-    __table_args__ = (UniqueConstraint('user_id', 'media_id', name='uix_user_media'),)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'media_id', name='uix_user_media'),
+    )
