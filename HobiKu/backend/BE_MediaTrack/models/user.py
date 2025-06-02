@@ -1,9 +1,8 @@
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import bcrypt
-
-Base = declarative_base()
+from .meta import Base
 
 class User(Base):
     __tablename__ = 'users'
@@ -13,6 +12,10 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False)
     password_hash = Column(String(100), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user_media = relationship("UserMedia", back_populates="user")
+    reviews = relationship("Review", back_populates="user")
 
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
