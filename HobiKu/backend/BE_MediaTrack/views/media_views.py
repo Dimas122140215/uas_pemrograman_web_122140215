@@ -1,12 +1,17 @@
 from pyramid.view import view_config
 from pyramid.response import Response
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPInternalServerError
 import json
+import logging
+import transaction
 
 from ..schemas.media_schema import MediaSchema, UserMediaSchema, ReviewSchema
 from ..services.media_service import MediaService, ReviewService
 from ..security import require_auth
 from marshmallow import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
+
+log = logging.getLogger(__name__)
 
 media_schema = MediaSchema()
 user_media_schema = UserMediaSchema()
@@ -21,32 +26,49 @@ def create_media_view(request):
         media_data = media_schema.load(request.json_body)
         service = MediaService(request.dbsession)
         media = service.create_media(media_data)
-        request.dbsession.commit()
+        # Don't manually commit - let pyramid_tm handle it
         return media_schema.dump(media)
     except ValidationError as e:
-        return Response(json.dumps({"errors": e.messages}), 
-                    content_type='application/json', status=400)
+        # Mark transaction for rollback
+        transaction.doom()
+        request.response.status = 400
+        return {"errors": e.messages}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in create_media: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
     except Exception as e:
-        request.dbsession.rollback()
-        return Response(json.dumps({"error": str(e)}), 
-                    content_type='application/json', status=500)
+        log.error(f"Unexpected error in create_media: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='get_media', renderer='json', request_method='GET')
 def get_media_view(request):
     """Get media by type with optional search"""
-    media_type = request.matchdict['type']
-    search_query = request.params.get('search')
-    limit = int(request.params.get('limit', 50))
-    offset = int(request.params.get('offset', 0))
-    
-    service = MediaService(request.dbsession)
-    
-    if search_query:
-        media_list = service.search_media(search_query, media_type, limit)
-    else:
-        media_list = service.get_media_by_type(media_type, limit, offset)
-    
-    return media_schema.dump(media_list, many=True)
+    try:
+        media_type = request.matchdict['type']
+        search_query = request.params.get('search')
+        limit = int(request.params.get('limit', 50))
+        offset = int(request.params.get('offset', 0))
+        
+        service = MediaService(request.dbsession)
+        
+        if search_query:
+            media_list = service.search_media(search_query, media_type, limit)
+        else:
+            media_list = service.get_media_by_type(media_type, limit, offset)
+        
+        return media_schema.dump(media_list, many=True)
+    except SQLAlchemyError as e:
+        log.error(f"Database error in get_media: {str(e)}")
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in get_media: {str(e)}")
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 # User Media List Operations
 @view_config(route_name='add_to_list', renderer='json', request_method='POST')
@@ -65,14 +87,25 @@ def add_to_list_view(request):
             progress=data.get('progress', 0)
         )
         
-        request.dbsession.commit()
         return user_media_schema.dump(user_media)
-    except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                    content_type='application/json', status=400)
     except ValidationError as e:
-        return Response(json.dumps({"errors": e.messages}), 
-                    content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"errors": e.messages}
+    except ValueError as e:
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in add_to_list: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in add_to_list: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='update_user_media', renderer='json', request_method='PUT')
 @require_auth
@@ -85,23 +118,42 @@ def update_user_media_view(request):
         service = MediaService(request.dbsession)
         user_media = service.update_user_media(request.user_id, media_id, data)
         
-        request.dbsession.commit()
         return user_media_schema.dump(user_media)
     except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                    content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in update_user_media: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in update_user_media: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='get_user_list', renderer='json', request_method='GET')
 @require_auth
 def get_user_list_view(request):
     """Get user's media list"""
-    status = request.params.get('status')
-    media_type = request.params.get('type')
-    
-    service = MediaService(request.dbsession)
-    user_media_list = service.get_user_media_list(request.user_id, status, media_type)
-    
-    return user_media_schema.dump(user_media_list, many=True)
+    try:
+        status = request.params.get('status')
+        media_type = request.params.get('type')
+        
+        service = MediaService(request.dbsession)
+        user_media_list = service.get_user_media_list(request.user_id, status, media_type)
+        
+        return user_media_schema.dump(user_media_list, many=True)
+    except SQLAlchemyError as e:
+        log.error(f"Database error in get_user_list: {str(e)}")
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in get_user_list: {str(e)}")
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='remove_from_list', renderer='json', request_method='DELETE')
 @require_auth
@@ -112,11 +164,21 @@ def remove_from_list_view(request):
         service = MediaService(request.dbsession)
         service.remove_from_user_list(request.user_id, media_id)
         
-        request.dbsession.commit()
         return {"message": "Media removed from list"}
     except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                    content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in remove_from_list: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in remove_from_list: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 # Review Operations
 @view_config(route_name='create_review', renderer='json', request_method='POST')
@@ -134,14 +196,25 @@ def create_review_view(request):
             content=data['content']
         )
         
-        request.dbsession.commit()
         return review_schema.dump(review)
-    except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                    content_type='application/json', status=400)
     except ValidationError as e:
-        return Response(json.dumps({"errors": e.messages}), 
-                    content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"errors": e.messages}
+    except ValueError as e:
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in create_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in create_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='update_review', renderer='json', request_method='PUT')
 @require_auth
@@ -154,11 +227,21 @@ def update_review_view(request):
         service = ReviewService(request.dbsession)
         review = service.update_review(review_id, request.user_id, data)
         
-        request.dbsession.commit()
         return review_schema.dump(review)
     except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                       content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in update_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in update_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='delete_review', renderer='json', request_method='DELETE')
 @require_auth
@@ -169,32 +252,60 @@ def delete_review_view(request):
         service = ReviewService(request.dbsession)
         service.delete_review(review_id, request.user_id)
         
-        request.dbsession.commit()
         return {"message": "Review deleted"}
     except ValueError as e:
-        return Response(json.dumps({"error": str(e)}), 
-                       content_type='application/json', status=400)
+        transaction.doom()
+        request.response.status = 400
+        return {"error": str(e)}
+    except SQLAlchemyError as e:
+        log.error(f"Database error in delete_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in delete_review: {str(e)}")
+        transaction.doom()
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='get_media_reviews', renderer='json', request_method='GET')
 def get_media_reviews_view(request):
     """Get reviews for a specific media"""
-    media_id = int(request.matchdict['media_id'])
-    limit = int(request.params.get('limit', 20))
-    offset = int(request.params.get('offset', 0))
-    
-    service = ReviewService(request.dbsession)
-    reviews = service.get_media_reviews(media_id, limit, offset)
-    
-    return review_schema.dump(reviews, many=True)
+    try:
+        media_id = int(request.matchdict['media_id'])
+        limit = int(request.params.get('limit', 20))
+        offset = int(request.params.get('offset', 0))
+        
+        service = ReviewService(request.dbsession)
+        reviews = service.get_media_reviews(media_id, limit, offset)
+        
+        return review_schema.dump(reviews, many=True)
+    except SQLAlchemyError as e:
+        log.error(f"Database error in get_media_reviews: {str(e)}")
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in get_media_reviews: {str(e)}")
+        request.response.status = 500
+        return {"error": "Internal server error"}
 
 @view_config(route_name='get_user_reviews', renderer='json', request_method='GET')
 @require_auth
 def get_user_reviews_view(request):
     """Get reviews by current user"""
-    limit = int(request.params.get('limit', 20))
-    offset = int(request.params.get('offset', 0))
-    
-    service = ReviewService(request.dbsession)
-    reviews = service.get_user_reviews(request.user_id, limit, offset)
-    
-    return review_schema.dump(reviews, many=True)
+    try:
+        limit = int(request.params.get('limit', 20))
+        offset = int(request.params.get('offset', 0))
+        
+        service = ReviewService(request.dbsession)
+        reviews = service.get_user_reviews(request.user_id, limit, offset)
+        
+        return review_schema.dump(reviews, many=True)
+    except SQLAlchemyError as e:
+        log.error(f"Database error in get_user_reviews: {str(e)}")
+        request.response.status = 500
+        return {"error": "Database error occurred"}
+    except Exception as e:
+        log.error(f"Unexpected error in get_user_reviews: {str(e)}")
+        request.response.status = 500
+        return {"error": "Internal server error"}

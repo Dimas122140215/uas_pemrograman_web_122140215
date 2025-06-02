@@ -27,19 +27,16 @@ def register_new_user(dbsession, username, email, password):
         user = User(username=username, email=email)
         user.set_password(password)
         dbsession.add(user)
-        dbsession.commit()
+        dbsession.flush()  # Use flush instead of commit to get the user ID
         
         logger.info(f"User registered: {username}")
         return user
         
     except IntegrityError:
-        dbsession.rollback()
         raise RegistrationError("Registration failed: data conflict")
     except RegistrationError:
-        dbsession.rollback()
         raise
     except Exception as e:
-        dbsession.rollback()
         logger.error(f"Registration error: {e}")
         raise RegistrationError("Registration failed")
 
