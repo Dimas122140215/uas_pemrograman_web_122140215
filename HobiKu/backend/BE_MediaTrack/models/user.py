@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
-import bcrypt
+import hashlib
+import secrets
 from .meta import Base
 
 class User(Base):
@@ -18,7 +19,19 @@ class User(Base):
     reviews = relationship("Review", back_populates="user")
 
     def set_password(self, password):
-        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Generate a random salt
+        salt = secrets.token_hex(16)
+        # Hash password with salt
+        hash_obj = hashlib.sha256((salt + password).encode())
+        # Store salt + hash together
+        self.password_hash = salt + hash_obj.hexdigest()
 
     def check_password(self, password):
-        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+        if not self.password_hash or len(self.password_hash) < 32:
+            return False
+        # Extract salt from stored hash (first 32 characters)
+        salt = self.password_hash[:32]
+        # Hash the provided password with the same salt
+        hash_obj = hashlib.sha256((salt + password).encode())
+        # Compare with stored hash
+        return self.password_hash == salt + hash_obj.hexdigest()
